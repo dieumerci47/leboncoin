@@ -102,10 +102,10 @@ function Checkout() {
       showNotification("Commande envoyée avec succès!", "success");
       clearCart();
       navigate("/");
-    } catch (error) {
+    } catch (e) {
       showNotification(
         "Erreur lors de l'envoi de la commande. Veuillez réessayer.",
-        "error"
+        e
       );
     }
   };

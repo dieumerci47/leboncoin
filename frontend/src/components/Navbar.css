@@ -83,3 +83,16 @@
 .navbar.hidden {
   transform: translateY(-100%);
 }
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+}
+
+.logout-btn:hover {
+  color: var(--secondary-color);
+}
