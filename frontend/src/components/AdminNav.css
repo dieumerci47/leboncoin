@@ -1,0 +1,50 @@
+.admin-nav {
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.admin-nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+}
+
+.admin-nav h1 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.admin-nav nav {
+  display: flex;
+  gap: 2rem;
+}
+
+.admin-nav .nav-link {
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.admin-nav .nav-link:hover,
+.admin-nav .nav-link.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  margin-left: 1rem;
+}
+
+.logout-btn:hover {
+  color: var(--secondary-color);
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./ProductForm.css";
+import { compressImage, validateImage } from "../../utils/imageUtils";
 
 function ProductForm({ product, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -26,14 +27,20 @@ function ProductForm({ product, onSave, onCancel }) {
     });
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+      try {
+        validateImage(file);
+        const compressedImage = await compressImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData({ ...formData, image: reader.result });
+        };
+        reader.readAsDataURL(compressedImage);
+      } catch (error) {
+        showNotification(error.message, "error");
+      }
     }
   };
 

@@ -7,7 +7,6 @@ function Navbar() {
   const { cart } = useCart();
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
-  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -21,11 +20,6 @@ function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [prevScrollPos]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("isAdmin");
-    window.location.href = "/";
-  };
 
   return (
     <nav className={`navbar ${visible ? "" : "hidden"}`}>
@@ -57,20 +51,6 @@ function Navbar() {
               )}
             </Link>
           </li>
-          {isAdmin && (
-            <>
-              <li className="nav-item">
-                <Link to="/admin/products" className="nav-link">
-                  Admin
-                </Link>
-              </li>
-              <li className="nav-item">
-                <button onClick={handleLogout} className="nav-link logout-btn">
-                  Déconnexion
-                </button>
-              </li>
-            </>
-          )}
         </ul>
       </div>
     </nav>

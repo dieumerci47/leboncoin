@@ -1,0 +1,88 @@
+.order-manager {
+  padding: 2rem;
+}
+
+.order-manager h2 {
+  margin-bottom: 2rem;
+  color: var(--primary-color);
+}
+
+.orders-list {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.orders-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-list th,
+.orders-list td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.orders-list th {
+  background-color: var(--background-color);
+  font-weight: 600;
+}
+
+.email {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #f1c40f;
+  color: white;
+}
+
+.status-processing {
+  background-color: #3498db;
+  color: white;
+}
+
+.status-shipped {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.status-delivered {
+  background-color: #27ae60;
+  color: white;
+}
+
+.status-cancelled {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.orders-list select {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-right: 0.5rem;
+}
+
+@media print {
+  .admin-nav,
+  .orders-list select,
+  .orders-list button {
+    display: none;
+  }
+
+  .orders-list {
+    box-shadow: none;
+  }
+}

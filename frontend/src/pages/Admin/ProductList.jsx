@@ -48,7 +48,7 @@ function ProductList({ onEdit }) {
                     className="product-thumbnail"
                   />
                 ) : (
-                  <div className="no-image">Pas d'image</div>
+                  <div className="no-image">Pas d&apos;image</div>
                 )}
               </td>
               <td>{product.name}</td>

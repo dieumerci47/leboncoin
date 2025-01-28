@@ -20,7 +20,8 @@ const tempProducts = [
     price: 799.99,
     description: "Un smartphone Android haut de gamme",
     available: true,
-    image: "https://via.placeholder.com/200",
+    image:
+      "https://th.bing.com/th/id/OIP.sK-eLQXZqkMVJmib8cWvQAHaJi?rs=1&pid=ImgDetMain",
     category: "Smartphones",
   },
   {
