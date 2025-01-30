@@ -210,7 +210,8 @@ function Checkout() {
           </div>
 
           <button type="submit" className="btn btn-primary">
-            Commander ({getCartTotal().toFixed(2)} €)
+            Commander ({getCartTotal()}
+            <strong>FCFA</strong>)
           </button>
         </form>
 
@@ -224,7 +225,7 @@ function Checkout() {
                   <h4>{item.name}</h4>
                   <p>Quantité: {item.quantity}</p>
                   <p className="price">
-                    {(item.price * item.quantity).toFixed(2)} €
+                    {item.price * item.quantity} <strong>FCFA</strong>
                   </p>
                 </div>
               </div>
@@ -232,7 +233,9 @@ function Checkout() {
           </div>
           <div className="total">
             <span>Total:</span>
-            <span>{getCartTotal().toFixed(2)} €</span>
+            <span>
+              {getCartTotal()} <strong>FCFA</strong>
+            </span>
           </div>
         </div>
       </div>
