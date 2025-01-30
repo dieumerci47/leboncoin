@@ -24,7 +24,7 @@ function Cart() {
       <h2>Votre Panier</h2>
       <div className="cart-items">
         {cart.map((item) => (
-          <div key={item.id} className="cart-item">
+          <div key={item._id} className="cart-item">
             <img src={item.image} alt={item.name} />
             <div className="item-details">
               <h3>{item.name}</h3>
@@ -33,21 +33,21 @@ function Cart() {
             <div className="quantity-controls">
               <button
                 className="btn"
-                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                onClick={() => updateQuantity(item._id, item.quantity - 1)}
               >
                 -
               </button>
               <span>{item.quantity}</span>
               <button
                 className="btn"
-                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                onClick={() => updateQuantity(item._id, item.quantity + 1)}
               >
                 +
               </button>
             </div>
             <button
               className="btn btn-secondary remove-btn"
-              onClick={() => removeFromCart(item.id)}
+              onClick={() => removeFromCart(item._id)}
             >
               Supprimer
             </button>

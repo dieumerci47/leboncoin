@@ -8,7 +8,7 @@ function Products() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 100000 });
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000000 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -113,7 +113,7 @@ function Products() {
           <input
             type="range"
             min="0"
-            max="100000"
+            max="1000000"
             value={priceRange.max}
             onChange={(e) =>
               setPriceRange((prev) => ({
