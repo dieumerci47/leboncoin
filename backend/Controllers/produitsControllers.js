@@ -30,3 +30,31 @@ module.exports.addProduit = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de l'ajout du produit" });
   }
 };
+module.exports.deleteProduit = async (req, res) => {
+  try {
+    await productModel.findByIdAndDelete({ _id: req.params.id });
+    res.status(200).json("Produit supprimé");
+  } catch (err) {
+    res.status(500).json("Erreur lors de la suppression du produit");
+  }
+};
+module.exports.updateProduit = async (req, res) => {
+  try {
+    const product = await productModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!product) {
+      return res.status(404).json({ message: "Produit non trouvé" });
+    }
+    res.status(200).json(product);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la mise à jour du produit" });
+  }
+};
