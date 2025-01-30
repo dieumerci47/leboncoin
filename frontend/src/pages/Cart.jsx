@@ -28,7 +28,9 @@ function Cart() {
             <img src={item.image} alt={item.name} />
             <div className="item-details">
               <h3>{item.name}</h3>
-              <p className="price">{item.price.toFixed(2)} €</p>
+              <p className="price">
+                {item.price} <strong>FCFA</strong>
+              </p>
             </div>
             <div className="quantity-controls">
               <button
@@ -57,7 +59,9 @@ function Cart() {
       <div className="cart-summary">
         <div className="total">
           <span>Total:</span>
-          <span>{getCartTotal().toFixed(2)} €</span>
+          <span>
+            {getCartTotal()} <strong>FCFA</strong>
+          </span>
         </div>
         <button
           className="btn btn-primary checkout-btn"

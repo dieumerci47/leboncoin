@@ -74,7 +74,9 @@ function ProductList({ onEdit }) {
                 )}
               </td>
               <td>{product.name}</td>
-              <td>{product.price.toFixed(2)} €</td>
+              <td>
+                {product.price} <strong>FCFA</strong>{" "}
+              </td>
               <td>{product.category}</td>
               <td>
                 <span

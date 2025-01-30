@@ -26,29 +26,33 @@ function ProductForm({ product, onSave, onCancel }) {
     e.preventDefault();
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name);
-    formDataToSend.append("price", formData.price ? Number(formData.price) : 0); // ✅ Vérification pour éviter NaN
+    formDataToSend.append("price", formData.price ? Number(formData.price) : 0);
     formDataToSend.append("description", formData.description);
     formDataToSend.append("category", formData.category);
-    formDataToSend.append("available", formData.available ? "true" : "false"); // ✅ Mongoose attend une valeur string "true"/"false"
-    formDataToSend.append("file", e.target.image.files[0]);
-
-    console.log("FormData envoyé :", Object.fromEntries(formDataToSend)); // 🔍 Debugging
+    formDataToSend.append("available", formData.available ? "true" : "false");
+    if (e.target.image.files[0]) {
+      formDataToSend.append("file", e.target.image.files[0]);
+    }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/leboncoin/addproduits",
-        {
-          method: "POST",
-          body: formDataToSend,
-        }
-      );
+      const method = product ? "PUT" : "POST";
+      const url = product
+        ? `http://localhost:5000/leboncoin/produits/${product._id}`
+        : "http://localhost:5000/leboncoin/addproduits";
+
+      const response = await fetch(url, {
+        method,
+        body: formDataToSend,
+      });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout du produit");
+        throw new Error(
+          "Erreur lors de l'ajout ou de la modification du produit"
+        );
       }
 
       const result = await response.json();
-      showNotification("Produit ajouté avec succès", "success");
+      showNotification("Produit enregistré avec succès", "success");
       onSave(result);
     } catch (error) {
       showNotification(error.message, "error");
@@ -143,7 +147,7 @@ function ProductForm({ product, onSave, onCancel }) {
           type="file"
           id="image"
           name="file"
-          // accept="file"
+          accept="image/*"
           onChange={handleImageUpload}
         />
         {formData.image && (
