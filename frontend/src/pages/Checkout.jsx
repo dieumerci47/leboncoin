@@ -4,7 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useNotification } from "../context/NotificationContext";
 import "./Checkout.css";
 
-const ADMIN_EMAIL = "dieumercitsimba04@gmail.com";
+// const ADMIN_EMAIL = "dieumercitsimba04@gmail.com";
 
 function Checkout() {
   const navigate = useNavigate();
@@ -33,72 +33,39 @@ function Checkout() {
     }));
   };
 
-  const formatOrderForEmail = () => {
-    const orderDetails = {
-      customerInfo: formData,
-      orderItems: cart.map((item) => ({
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const orderData = {
+      customer: {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        tel: formData.phone,
+      },
+      items: cart.map((item) => ({
         name: item.name,
         quantity: item.quantity,
         price: item.price,
-        total: item.price * item.quantity,
-        isOnOrder: !item.available,
       })),
-      totalAmount: getCartTotal(),
-      orderDate: new Date().toISOString(),
-      orderNumber: `ORD-${Date.now()}`,
+      total: getCartTotal(),
     };
 
-    // Simuler l'envoi d'email (à remplacer par une vraie API)
-    const emailContent = {
-      to: ADMIN_EMAIL,
-      subject: `Nouvelle commande ${orderDetails.orderNumber}`,
-      body: `
-        Nouvelle commande reçue !
-
-        Numéro de commande: ${orderDetails.orderNumber}
-        Date: ${new Date(orderDetails.orderDate).toLocaleString()}
-
-        Informations client:
-        Nom: ${orderDetails.customerInfo.firstName} ${
-        orderDetails.customerInfo.lastName
-      }
-        Email: ${orderDetails.customerInfo.email}
-        Téléphone: ${orderDetails.customerInfo.phone}
-        Adresse: ${orderDetails.customerInfo.address}
-        Ville: ${orderDetails.customerInfo.city}
-        Code postal: ${orderDetails.customerInfo.postalCode}
-
-        Articles commandés:
-        ${orderDetails.orderItems
-          .map(
-            (item) => `
-          - ${item.name}
-            Quantité: ${item.quantity}
-            Prix unitaire: ${item.price.toFixed(2)}€
-            Total: ${item.total.toFixed(2)}€
-            ${item.isOnOrder ? "(Sur commande)" : "(En stock)"}
-        `
-          )
-          .join("\n")}
-
-        Montant total: ${orderDetails.totalAmount.toFixed(2)}€
-      `,
-    };
-
-    return emailContent;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
     try {
-      const emailContent = formatOrderForEmail();
+      const response = await fetch(
+        "http://localhost:5000/leboncoin/addorders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        }
+      );
 
-      // Simulation d'un appel API pour envoyer l'email
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        throw new Error("Erreur lors de la création de la commande");
+      }
 
-      // En production, remplacez ceci par un vrai appel API
-      console.log("Email qui serait envoyé:", emailContent);
-
+      await response.json();
       showNotification("Commande envoyée avec succès!", "success");
       clearCart();
       navigate("/");

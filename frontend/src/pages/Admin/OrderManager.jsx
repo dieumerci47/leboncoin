@@ -1,23 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNotification } from "../../context/NotificationContext";
 import "./OrderManager.css";
 
 function OrderManager() {
   const { showNotification } = useNotification();
-  const [orders] = useState([
-    // Exemple de commande
-    {
-      id: "ORD-123456",
-      date: new Date().toISOString(),
-      customer: {
-        name: "John Doe",
-        email: "john@example.com",
-      },
-      items: [{ name: "Produit 1", quantity: 2, price: 99.99 }],
-      total: 199.98,
-      status: "pending",
-    },
-  ]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/leboncoin/getorders"
+        );
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement des commandes");
+        }
+        const data = await response.json();
+        setOrders(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const handleStatusChange = (orderId, newStatus) => {
     // Ici, vous ajouterez la logique pour mettre à jour le statut dans le backend
@@ -29,14 +39,22 @@ function OrderManager() {
 
   const getStatusBadgeClass = (status) => {
     const statusClasses = {
-      pending: "status-pending",
-      processing: "status-processing",
-      shipped: "status-shipped",
-      delivered: "status-delivered",
-      cancelled: "status-cancelled",
+      attente: "status-pending",
+      traitement: "status-processing",
+      expedie: "status-shipped",
+      livre: "status-delivered",
+      annulee: "status-cancelled",
     };
     return `status-badge ${statusClasses[status] || ""}`;
   };
+
+  if (loading) {
+    return <div>Chargement des commandes...</div>;
+  }
+
+  if (error) {
+    return <div>Erreur: {error}</div>;
+  }
 
   return (
     <div className="order-manager">
@@ -56,14 +74,15 @@ function OrderManager() {
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id}>
-                <td>{order.id}</td>
+              <tr key={order._id}>
+                <td>{order._id}</td>
                 <td>{new Date(order.date).toLocaleDateString()}</td>
                 <td>
                   <div>{order.customer.name}</div>
                   <div className="email">{order.customer.email}</div>
+                  <div className="email">{order.customer.tel}</div>
                 </td>
-                <td>{order.total.toFixed(2)} €</td>
+                <td>{order.total} FCFA</td>
                 <td>
                   <span className={getStatusBadgeClass(order.status)}>
                     {order.status}
@@ -73,14 +92,14 @@ function OrderManager() {
                   <select
                     value={order.status}
                     onChange={(e) =>
-                      handleStatusChange(order.id, e.target.value)
+                      handleStatusChange(order._id, e.target.value)
                     }
                   >
-                    <option value="pending">En attente</option>
-                    <option value="processing">En traitement</option>
-                    <option value="shipped">Expédiée</option>
-                    <option value="delivered">Livrée</option>
-                    <option value="cancelled">Annulée</option>
+                    <option value="attente">En attente</option>
+                    <option value="traitement">En traitement</option>
+                    <option value="expedie">Expédiée</option>
+                    <option value="livre">Livrée</option>
+                    <option value="annulee">Annulée</option>
                   </select>
                   <button
                     className="btn btn-secondary"

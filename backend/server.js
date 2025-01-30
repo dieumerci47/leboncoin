@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const RouterProduits = require("./Routes/produitsRoutes");
+const RouterOrders = require("./Routes/ordersRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -23,6 +24,7 @@ app.get("/", (req, res) => {
   res.status(200).json("Bienvenu sur l'api");
 });
 app.use("/leboncoin", RouterProduits);
+app.use("/leboncoin", RouterOrders);
 app.listen(port, () => {
   console.log(`le server est lancé sur le port ${port} `);
 });
