@@ -1,20 +1,34 @@
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNotification } from "../../context/NotificationContext";
 import "./ProductList.css";
 
 function ProductList({ onEdit }) {
   const { showNotification } = useNotification();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Simulation de données (à remplacer par des données réelles du backend)
-  const products = [
-    {
-      id: 1,
-      name: "Exemple de produit",
-      price: 99.99,
-      category: "Catégorie",
-      available: true,
-    },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/leboncoin/produits"
+        );
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement des produits");
+        }
+        const data = await response.json();
+        setProducts(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleDelete = (productId) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
@@ -23,6 +37,14 @@ function ProductList({ onEdit }) {
       showNotification("Produit supprimé avec succès", "success");
     }
   };
+
+  if (loading) {
+    return <div>Chargement des produits...</div>;
+  }
+
+  if (error) {
+    return <div>Erreur: {error}</div>;
+  }
 
   return (
     <div className="product-list">
@@ -39,7 +61,7 @@ function ProductList({ onEdit }) {
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr key={product.id}>
+            <tr key={product._id}>
               <td>
                 {product.image ? (
                   <img
@@ -72,7 +94,7 @@ function ProductList({ onEdit }) {
                 </button>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => handleDelete(product.id)}
+                  onClick={() => handleDelete(product._id)}
                 >
                   Supprimer
                 </button>

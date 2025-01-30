@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useNotification } from "../../context/NotificationContext";
 import "./ProductForm.css";
 import { compressImage, validateImage } from "../../utils/imageUtils";
 
@@ -13,18 +14,45 @@ function ProductForm({ product, onSave, onCancel }) {
     image: "",
   });
 
+  const { showNotification } = useNotification();
+
   useEffect(() => {
     if (product) {
       setFormData(product);
     }
   }, [product]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave({
-      ...formData,
-      price: parseFloat(formData.price),
-    });
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("price", formData.price ? Number(formData.price) : 0); // ✅ Vérification pour éviter NaN
+    formDataToSend.append("description", formData.description);
+    formDataToSend.append("category", formData.category);
+    formDataToSend.append("available", formData.available ? "true" : "false"); // ✅ Mongoose attend une valeur string "true"/"false"
+    formDataToSend.append("file", e.target.image.files[0]);
+
+    console.log("FormData envoyé :", Object.fromEntries(formDataToSend)); // 🔍 Debugging
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/leboncoin/addproduits",
+        {
+          method: "POST",
+          body: formDataToSend,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'ajout du produit");
+      }
+
+      const result = await response.json();
+      showNotification("Produit ajouté avec succès", "success");
+      onSave(result);
+    } catch (error) {
+      showNotification(error.message, "error");
+    }
   };
 
   const handleImageUpload = async (e) => {
@@ -114,7 +142,8 @@ function ProductForm({ product, onSave, onCancel }) {
         <input
           type="file"
           id="image"
-          accept="image/*"
+          name="file"
+          // accept="file"
           onChange={handleImageUpload}
         />
         {formData.image && (
