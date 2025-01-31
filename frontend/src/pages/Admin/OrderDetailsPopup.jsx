@@ -1,13 +1,17 @@
-import React from "react";
 import PropTypes from "prop-types";
 import "./OrderManager.css"; // Assurez-vous que ce chemin est correct
 
 function OrderDetailsPopup({ order, onClose }) {
   if (!order) return null;
 
+  // Fonction pour gérer le clic sur le contenu du popup
+  const handlePopupClick = (e) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="popup-overlay">
-      <div className="popup">
+    <div className="popup-overlay" onClick={onClose}>
+      <div className="popup" onClick={handlePopupClick}>
         <button className="close-btn" onClick={onClose}>
           &times;
         </button>

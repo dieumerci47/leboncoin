@@ -186,7 +186,7 @@ function Checkout() {
           <h3>Récapitulatif de la commande</h3>
           <div className="cart-items">
             {cart.map((item) => (
-              <div key={item.id} className="summary-item">
+              <div key={item._id} className="summary-item">
                 <img src={item.image} alt={item.name} />
                 <div className="item-details">
                   <h4>{item.name}</h4>
