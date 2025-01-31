@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNotification } from "../../context/NotificationContext";
+import OrderDetailsPopup from "./OrderDetailsPopup";
 import "./OrderManager.css";
 
 function OrderManager() {
@@ -7,6 +8,7 @@ function OrderManager() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -29,12 +31,41 @@ function OrderManager() {
     fetchOrders();
   }, []);
 
-  const handleStatusChange = (orderId, newStatus) => {
-    // Ici, vous ajouterez la logique pour mettre à jour le statut dans le backend
-    console.log(
-      `Mise à jour du statut de la commande ${orderId} à ${newStatus}`
-    );
-    showNotification("Statut de la commande mis à jour", "success");
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/leboncoin/updateorder/${orderId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Erreur lors de la mise à jour du statut de la commande"
+        );
+      }
+
+      const updatedOrder = await response.json();
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === orderId
+            ? { ...order, status: updatedOrder.status }
+            : order
+        )
+      );
+      showNotification("Statut de la commande mis à jour", "success");
+    } catch (error) {
+      showNotification(
+        "Erreur lors de la mise à jour du statut",
+        error.message
+      );
+    }
   };
 
   const getStatusBadgeClass = (status) => {
@@ -75,7 +106,14 @@ function OrderManager() {
           <tbody>
             {orders.map((order) => (
               <tr key={order._id}>
-                <td>{order._id}</td>
+                <td>
+                  <button
+                    className="link-button"
+                    onClick={() => setSelectedOrder(order)}
+                  >
+                    {order._id}
+                  </button>
+                </td>
                 <td>{new Date(order.date).toLocaleDateString()}</td>
                 <td>
                   <div>{order.customer.name}</div>
@@ -113,6 +151,13 @@ function OrderManager() {
           </tbody>
         </table>
       </div>
+
+      {selectedOrder && (
+        <OrderDetailsPopup
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
+      )}
     </div>
   );
 }
