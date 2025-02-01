@@ -5,23 +5,34 @@ import "./Login.css";
 
 function Login() {
   const [credentials, setCredentials] = useState({
-    username: "",
+    email: "",
     password: "",
   });
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // À remplacer par une vraie authentification
-    if (
-      credentials.username === "admin" &&
-      credentials.password === "password"
-    ) {
-      localStorage.setItem("isAdmin", "true");
-      navigate("/admin/products");
-    } else {
-      showNotification("Identifiants incorrects", "error");
+    console.log(credentials);
+    try {
+      await fetch("http://localhost:5000/leboncoin/loginadmin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          navigate("/admin/products");
+        })
+        .catch((e) => {
+          console.log(e);
+          showNotification("Identifiants incorrects");
+        });
+    } catch (e) {
+      console.log(e);
     }
   };
 

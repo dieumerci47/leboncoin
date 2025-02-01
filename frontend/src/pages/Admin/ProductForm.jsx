@@ -5,6 +5,7 @@ import "./ProductForm.css";
 import { compressImage, validateImage } from "../../utils/imageUtils";
 
 function ProductForm({ product, onSave, onCancel }) {
+  const { showNotification } = useNotification();
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -14,13 +15,67 @@ function ProductForm({ product, onSave, onCancel }) {
     image: "",
   });
 
-  const { showNotification } = useNotification();
+  // Nouvel état pour la recherche
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchedProduct, setSearchedProduct] = useState(null);
 
   useEffect(() => {
     if (product) {
-      setFormData(product);
+      setFormData({
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        category: product.category,
+        available: product.available,
+        image: product.image,
+      });
     }
   }, [product]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Fonction de recherche de produit
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      showNotification("Veuillez entrer un terme de recherche.", "error");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/leboncoin/getorders?search=${searchTerm}`
+      ); // Adapter l'URL si nécessaire
+      if (!response.ok) {
+        throw new Error("Erreur lors de la recherche du produit");
+      }
+      const data = await response.json();
+
+      if (data.length === 0) {
+        showNotification("Produit non trouvé.", "error");
+        setSearchedProduct(null);
+      } else {
+        const foundProduct = data[0]; // Supposant que le nom est unique
+        setSearchedProduct(foundProduct);
+        setFormData({
+          name: foundProduct.name,
+          price: foundProduct.price,
+          description: foundProduct.description,
+          category: foundProduct.category,
+          available: foundProduct.available,
+          image: foundProduct.image,
+        });
+        showNotification("Produit trouvé. Vous pouvez le modifier.", "success");
+      }
+    } catch (error) {
+      showNotification("Erreur lors de la recherche du produit.", error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,9 +90,9 @@ function ProductForm({ product, onSave, onCancel }) {
     }
 
     try {
-      const method = product ? "PUT" : "POST";
-      const url = product
-        ? `http://localhost:5000/leboncoin/produits/${product._id}`
+      const method = searchedProduct ? "PUT" : "POST";
+      const url = searchedProduct
+        ? `http://localhost:5000/leboncoin/produits/${searchedProduct._id}`
         : "http://localhost:5000/leboncoin/addproduits";
 
       const response = await fetch(url, {
@@ -55,7 +110,10 @@ function ProductForm({ product, onSave, onCancel }) {
       showNotification("Produit enregistré avec succès", "success");
       onSave(result);
     } catch (error) {
-      showNotification(error.message, "error");
+      showNotification(
+        "Erreur lors de l'enregistrement du produit. Veuillez réessayer.",
+        error
+      );
     }
   };
 
@@ -77,93 +135,117 @@ function ProductForm({ product, onSave, onCancel }) {
   };
 
   return (
-    <form className="product-form" onSubmit={handleSubmit}>
-      <h3>{product ? "Modifier le produit" : "Nouveau produit"}</h3>
+    <div className="product-form-container">
+      <h2>{searchedProduct ? "Modifier Produit" : "Ajouter Produit"}</h2>
 
-      <div className="form-group">
-        <label htmlFor="name">Nom du produit</label>
+      {/* Section de recherche */}
+      <div className="search-product">
         <input
           type="text"
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
+          placeholder="Rechercher un produit par nom"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
         />
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleSearch}
+        >
+          Rechercher
+        </button>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="price">Prix (€)</label>
-        <input
-          type="number"
-          id="price"
-          step="0.01"
-          value={formData.price}
-          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="description">Description</label>
-        <textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="category">Catégorie</label>
-        <input
-          type="text"
-          id="category"
-          value={formData.category}
-          onChange={(e) =>
-            setFormData({ ...formData, category: e.target.value })
-          }
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label>
+      <form onSubmit={handleSubmit} className="product-form">
+        {/* Champs du formulaire */}
+        <div className="form-group">
+          <label htmlFor="name">Nom</label>
           <input
-            type="checkbox"
-            checked={formData.available}
-            onChange={(e) =>
-              setFormData({ ...formData, available: e.target.checked })
-            }
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
           />
-          En stock
-        </label>
-      </div>
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="image">Image du produit</label>
-        <input
-          type="file"
-          id="image"
-          name="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-        />
-        {formData.image && (
-          <img src={formData.image} alt="Aperçu" className="image-preview" />
-        )}
-      </div>
+        <div className="form-group">
+          <label htmlFor="price">Prix (€)</label>
+          <input
+            type="number"
+            id="price"
+            step="0.01"
+            value={formData.price}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn btn-secondary" onClick={onCancel}>
-          Annuler
-        </button>
-        <button type="submit" className="btn btn-primary">
-          {product ? "Modifier" : "Ajouter"}
-        </button>
-      </div>
-    </form>
+        <div className="form-group">
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="category">Catégorie</label>
+          <input
+            type="text"
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={formData.available}
+              onChange={(e) =>
+                setFormData({ ...formData, available: e.target.checked })
+              }
+            />
+            En stock
+          </label>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="image">Image du produit</label>
+          <input
+            type="file"
+            id="image"
+            name="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
+          {formData.image && (
+            <img src={formData.image} alt="Aperçu" className="image-preview" />
+          )}
+        </div>
+
+        <div className="form-actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={onCancel}
+          >
+            Annuler
+          </button>
+          <button type="submit" className="btn btn-primary">
+            {searchedProduct ? "Modifier" : "Ajouter"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
 

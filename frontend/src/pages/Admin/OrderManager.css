@@ -87,6 +87,27 @@
   }
 }
 
+/* Ajouts pour la recherche et le filtrage */
+.search-filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-filter-container .search-input,
+.search-filter-container .filter-select {
+  flex: 1 1 200px;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.search-filter-container .filter-select {
+  max-width: 250px;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;

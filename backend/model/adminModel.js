@@ -1,0 +1,22 @@
+const mongoose = require("mongoose");
+const { isEmail } = require("validator");
+const adminSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: [isEmail],
+    trim: true,
+    lowercase: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6,
+    maxlength: 1024,
+  },
+});
+
+const Admin = mongoose.model("Admin", adminSchema);
+
+module.exports = Admin;

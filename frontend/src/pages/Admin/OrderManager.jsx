@@ -10,6 +10,10 @@ function OrderManager() {
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  // Nouveaux états pour la recherche et le filtrage
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -79,6 +83,22 @@ function OrderManager() {
     return `status-badge ${statusClasses[status] || ""}`;
   };
 
+  // Fonction de filtrage des commandes
+  const filteredOrders = orders.filter((order) => {
+    const fullName = order.customer.name.toLowerCase();
+    const email = order.customer.email.toLowerCase();
+    const firstName = order.customer.name.split(" ")[0].toLowerCase();
+
+    const searchMatch =
+      fullName.includes(searchTerm.toLowerCase()) ||
+      email.includes(searchTerm.toLowerCase()) ||
+      firstName.includes(searchTerm.toLowerCase());
+
+    const statusMatch = filterStatus === "all" || order.status === filterStatus;
+
+    return searchMatch && statusMatch;
+  });
+
   if (loading) {
     return <div>Chargement des commandes...</div>;
   }
@@ -90,6 +110,30 @@ function OrderManager() {
   return (
     <div className="order-manager">
       <h2>Gestion des Commandes</h2>
+
+      {/* Section Recherche et Filtrage */}
+      <div className="search-filter-container">
+        <input
+          type="text"
+          placeholder="Rechercher par nom, prénom ou email"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="filter-select"
+        >
+          <option value="all">Tous les statuts</option>
+          <option value="attente">En attente</option>
+          <option value="traitement">En traitement</option>
+          <option value="expedie">Expédiée</option>
+          <option value="livre">Livrée</option>
+          <option value="annulee">Annulée</option>
+        </select>
+      </div>
 
       <div className="orders-list">
         <table>
@@ -104,7 +148,7 @@ function OrderManager() {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr key={order._id}>
                 <td>
                   <button
@@ -152,6 +196,7 @@ function OrderManager() {
         </table>
       </div>
 
+      {/* Popup pour les détails de la commande */}
       {selectedOrder && (
         <OrderDetailsPopup
           order={selectedOrder}
